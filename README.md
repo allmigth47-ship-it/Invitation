@@ -1,5 +1,3 @@
-# Invitation
-Lien pour une invitation 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -39,6 +37,8 @@ Lien pour une invitation
             transition: transform var(--transition-speed) cubic-bezier(0.65, 0, 0.35, 1), opacity var(--transition-speed);
             opacity: 0;
             pointer-events: none;
+            box-sizing: border-box;
+            padding: 20px;
         }
 
         .active {
@@ -55,8 +55,8 @@ Lien pour une invitation
         .casino-title {
             font-family: 'Cinzel', serif;
             color: white;
-            font-size: 5rem;
-            letter-spacing: 10px;
+            font-size: 3.5rem; /* Réduit pour mobile */
+            letter-spacing: 5px;
             text-shadow: 0 0 20px var(--gold);
             margin-bottom: 20px;
         }
@@ -64,20 +64,35 @@ Lien pour une invitation
         .btn-enter {
             color: var(--gold);
             border: 2px solid var(--gold);
-            padding: 15px 40px;
-            font-size: 1.5rem;
+            padding: 12px 35px;
+            font-size: 1.2rem;
             text-transform: uppercase;
             cursor: pointer;
             background: rgba(0,0,0,0.4);
             transition: 0.3s;
             text-decoration: none;
             letter-spacing: 3px;
+            margin-bottom: 15px;
         }
 
         .btn-enter:hover {
             background: var(--gold);
             color: black;
             box-shadow: 0 0 20px var(--gold);
+        }
+
+        /* Indication pour le swipe */
+        .swipe-hint {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
         }
 
         /* SECTION 2 : FOND BORDEAUX TEXTE PROGRESSIF */
@@ -87,9 +102,9 @@ Lien pour une invitation
 
         .gold-text {
             color: var(--gold);
-            font-size: 2rem;
-            max-width: 80%;
-            line-height: 1.6;
+            font-size: 1.8rem;
+            max-width: 90%;
+            line-height: 1.5;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
         }
 
@@ -118,7 +133,7 @@ Lien pour une invitation
         }
 
         .oscar-img {
-            width: 200px;
+            width: 150px;
             margin-bottom: 30px;
             filter: drop-shadow(0 0 15px var(--gold));
         }
@@ -133,7 +148,8 @@ Lien pour une invitation
 
     <section id="section1" class="page active">
         <h1 class="casino-title">CASINO</h1>
-        <a href="#" class="btn-enter" onclick="nextSection(1)">Entrez</a>
+        <a href="#" class="btn-enter" onclick="nextSection(1); return false;">Entrez</a>
+        <div class="swipe-hint"> ou glissez vers le haut ↑</div>
     </section>
 
     <section id="section2" class="page hidden-down">
@@ -143,23 +159,46 @@ Lien pour une invitation
         </div>
         <div id="msg2" class="gold-text" style="display:none;">
             <p class="fade-in-text">Tu es cordialement invité à la soirée de parrainage de la 5.7 cembassoise</p>
-            <p class="fade-in-text" style="font-weight: bold; font-size: 2.5rem;">Ce 11 avril au Pont Emana dès 20h</p>
+            <p class="fade-in-text" style="font-weight: bold; font-size: 2rem;">Ce 11 avril au Pont Emana dès 20h</p>
         </div>
     </section>
 
     <section id="section3" class="page hidden-down">
         <div class="gold-text">
             <p class="fade-in-text">Sous le thème Casino...</p>
-            <p class="fade-in-text" style="font-family: 'Cinzel'; font-size: 3rem;">NIGHT & Oscar Winning</p>
+            <p class="fade-in-text" style="font-family: 'Cinzel'; font-size: 2.5rem;">NIGHT & Oscar Winning</p>
         </div>
     </section>
 
     <section id="section4" class="page hidden-down">
         <img src="https://upload.wikimedia.org/wikipedia/en/7/7f/Academy_Award_trophy.png" alt="Oscar" class="oscar-img">
-        <h2 class="gold-text" style="font-family: 'Cinzel'; letter-spacing: 5px;">Rendez-vous le 11.04.26</h2>
+        <h2 class="gold-text" style="font-family: 'Cinzel'; letter-spacing: 5px; font-size: 2rem;">Rendez-vous le 11.04.26</h2>
     </section>
 
     <script>
+        // --- GESTION DU SWIPE POUR MOBILE ---
+        let touchstartY = 0;
+        let touchendY = 0;
+        
+        const s1 = document.getElementById('section1');
+
+        s1.addEventListener('touchstart', e => {
+            touchstartY = e.changedTouches[0].screenY;
+        });
+
+        s1.addEventListener('touchend', e => {
+            touchendY = e.changedTouches[0].screenY;
+            handleGesture();
+        });
+
+        function handleGesture() {
+            // Si le glissement vers le haut est supérieur à 50px et qu'on est sur la section 1
+            if (touchstartY - touchendY > 50 && s1.classList.contains('active')) {
+                nextSection(1);
+            }
+        }
+        // ------------------------------------
+
         function nextSection(current) {
             const s1 = document.getElementById('section1');
             const s2 = document.getElementById('section2');
@@ -172,19 +211,17 @@ Lien pour une invitation
                 s2.classList.remove('hidden-down');
                 s2.classList.add('active');
                 
-                // Animation du premier message
                 animateText('msg1', () => {
                     setTimeout(() => {
-                        // Disparition gracieuse du message 1
+                        document.getElementById('msg1').style.transition = 'opacity 0.5s';
                         document.getElementById('msg1').style.opacity = '0';
                         setTimeout(() => {
                             document.getElementById('msg1').style.display = 'none';
                             document.getElementById('msg2').style.display = 'block';
-                            // Animation du deuxième message
                             animateText('msg2', () => {
                                 setTimeout(() => nextSection(2), 3000);
                             });
-                        }, 1000);
+                        }, 500);
                     }, 2500);
                 });
             } else if (current === 2) {
@@ -192,9 +229,12 @@ Lien pour une invitation
                 s2.classList.add('hidden-up');
                 s3.classList.remove('hidden-down');
                 s3.classList.add('active');
-                animateText('section3', () => {
-                    setTimeout(() => nextSection(3), 3500);
-                });
+                
+                setTimeout(() => {
+                    animateText('section3', () => {
+                        setTimeout(() => nextSection(3), 3500);
+                    });
+                }, 500);
             } else if (current === 3) {
                 s3.classList.remove('active');
                 s3.classList.add('hidden-up');
@@ -205,12 +245,19 @@ Lien pour une invitation
 
         function animateText(containerId, callback) {
             const container = document.getElementById(containerId);
+            if (!container) return;
+            
             const lines = container.querySelectorAll('.fade-in-text');
+            if (lines.length === 0) {
+                if (callback) callback();
+                return;
+            }
+
             lines.forEach((line, index) => {
                 setTimeout(() => {
                     line.classList.add('show-text');
                     if(index === lines.length - 1 && callback) callback();
-                }, index * 1000); // Vitesse d'apparition (1 seconde par ligne)
+                }, index * 1000);
             });
         }
     </script>
